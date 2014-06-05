@@ -2,13 +2,9 @@ package retromock.matchers;
 
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
-import org.hamcrest.collection.IsMapContaining;
 import retrofit.client.Request;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -61,7 +57,7 @@ public class IsRequestWithUrl extends FeatureMatcher<Request, URI> {
     public static class UrlWithQuery extends FeatureMatcher<URI, Map<String,String>> {
 
         public UrlWithQuery(Matcher<? super Map<String,String>> subMatcher) {
-            super(subMatcher, "a URI with path", "path");
+            super(subMatcher, "a URI with query parameters", "query parameters");
         }
 
         @Override
