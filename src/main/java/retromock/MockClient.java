@@ -73,7 +73,7 @@ public class MockClient implements Client {
     private static class Route {
         Matcher<Request> requestMatcher;
         ResponseFactory response;
-        static Route of(Matcher<Request> requestMatcher, ResponseFactory response) {
+        private static Route of(Matcher<Request> requestMatcher, ResponseFactory response) {
             Route res = new Route();
             res.requestMatcher = requestMatcher;
             res.response = response;
@@ -102,23 +102,28 @@ public class MockClient implements Client {
             this.builder = builder;
         }
 
-        RouteBuilder matching(Matcher<? super Request> requestMatcher) {
+        public RouteBuilder matching(Matcher<? super Request> requestMatcher) {
             matchers.add(requestMatcher);
             return this;
         }
-        RouteBuilder withMethod(String method) {
+
+        public RouteBuilder withMethod(String method) {
             return matching(IsRequestWithMethod.withMethod(method));
         }
-        RouteBuilder withHeader(String headerName, Matcher<String> headerValue) {
+
+        public RouteBuilder withHeader(String headerName, Matcher<String> headerValue) {
             return matching(withHeaders(header(headerName, headerValue)));
         }
-        RouteBuilder withPath(String url) {
+
+        public RouteBuilder withPath(String url) {
             return matching(IsRequestWithUrl.withPath(url));
         }
-        Provider thenReturn(Response response) {
+
+        public Provider thenReturn(Response response) {
             return thenReturn(ResponseFactory.always(response));
         }
-        Provider thenReturn(ResponseFactory response) {
+
+        public Provider thenReturn(ResponseFactory response) {
             Matcher<Request> requestMatcher = allOf(matchers);
             builder.routes.add(Route.of(requestMatcher, response));
             return builder;
