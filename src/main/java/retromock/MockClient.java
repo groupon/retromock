@@ -8,6 +8,7 @@ import retrofit.client.Request;
 import retrofit.client.Response;
 import retrofit.mime.TypedString;
 import retromock.matchers.IsRequestWithMethod;
+import retromock.matchers.IsRequestWithUrl;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -80,7 +81,7 @@ public class MockClient implements Client {
         }
     }
 
-    static abstract class ResponseFactory {
+    public static abstract class ResponseFactory {
         public static ResponseFactory always(final Response response) {
             return new ResponseFactory() {
                 @Override
@@ -110,6 +111,9 @@ public class MockClient implements Client {
         }
         RouteBuilder withHeader(String headerName, Matcher<String> headerValue) {
             return matching(withHeaders(header(headerName, headerValue)));
+        }
+        RouteBuilder withPath(String url) {
+            return matching(IsRequestWithUrl.withPath(url));
         }
         Provider thenReturn(ResponseFactory response) {
             Matcher<Request> requestMatcher = allOf(matchers);
