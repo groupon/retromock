@@ -52,6 +52,7 @@ public class MockClientTest {
                 .build();
         TestCase testCase = restAdapter.create(TestCase.class);
         assertEquals("Hello, World", testCase.get());
+        assertEquals("post body", testCase.post("post body"));
     }
 
 
