@@ -28,12 +28,12 @@ public class IsHeader {
     static class HeaderValue extends FeatureMatcher<Header, String> {
 
         public HeaderValue(Matcher<? super String> subMatcher) {
-            super(subMatcher, "a header with name", "name");
+            super(subMatcher, "a header with value", "value");
         }
 
         @Override
         protected String featureValueOf(Header header) {
-            return header.getName();
+            return header.getValue();
         }
     }
 }
