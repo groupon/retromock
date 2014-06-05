@@ -48,7 +48,9 @@ public class MockClient implements Client {
     public static Provider when() { return new Provider(); }
     
     public static class Provider implements Client.Provider {
+
         List<Route> routes = new LinkedList<>();
+
         public RouteBuilder aRequest() { return new RouteBuilder(this); }
 
         public RouteBuilder GET() { return aRequest().withMethod("GET"); }
@@ -68,6 +70,41 @@ public class MockClient implements Client {
         @Override public MockClient get() {
             return new MockClient(routes);
         }
+
+        public class RouteBuilder {
+            List<Matcher<? super Request>> matchers = new LinkedList<>();
+
+            public RouteBuilder(Provider builder) {
+            }
+
+            public RouteBuilder matching(Matcher<? super Request> requestMatcher) {
+                matchers.add(requestMatcher);
+                return this;
+            }
+
+            public RouteBuilder withMethod(String method) {
+                return matching(IsRequestWithMethod.withMethod(method));
+            }
+
+            public RouteBuilder withHeader(String headerName, Matcher<String> headerValue) {
+                return matching(withHeaders(header(headerName, headerValue)));
+            }
+
+            public RouteBuilder withPath(String url) {
+                return matching(IsRequestWithUrl.withPath(url));
+            }
+
+            public Provider thenReturn(Response response) {
+                return thenReturn(ResponseFactory.always(response));
+            }
+
+            public Provider thenReturn(ResponseFactory response) {
+                Matcher<Request> requestMatcher = allOf(matchers);
+                routes.add(Route.of(requestMatcher, response));
+                return Provider.this;
+            }
+        }
+
     }
     
     private static class Route {
@@ -94,41 +131,6 @@ public class MockClient implements Client {
         public abstract Response createFrom(Request request) throws IOException;
     }
     
-    public static class RouteBuilder {
-        List<Matcher<? super Request>> matchers = new LinkedList<>();
-        final Provider builder;
 
-        public RouteBuilder(Provider builder) {
-            this.builder = builder;
-        }
-
-        public RouteBuilder matching(Matcher<? super Request> requestMatcher) {
-            matchers.add(requestMatcher);
-            return this;
-        }
-
-        public RouteBuilder withMethod(String method) {
-            return matching(IsRequestWithMethod.withMethod(method));
-        }
-
-        public RouteBuilder withHeader(String headerName, Matcher<String> headerValue) {
-            return matching(withHeaders(header(headerName, headerValue)));
-        }
-
-        public RouteBuilder withPath(String url) {
-            return matching(IsRequestWithUrl.withPath(url));
-        }
-
-        public Provider thenReturn(Response response) {
-            return thenReturn(ResponseFactory.always(response));
-        }
-
-        public Provider thenReturn(ResponseFactory response) {
-            Matcher<Request> requestMatcher = allOf(matchers);
-            builder.routes.add(Route.of(requestMatcher, response));
-            return builder;
-        }
-    }
-    
 
 }
