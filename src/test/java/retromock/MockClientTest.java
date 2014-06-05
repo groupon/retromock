@@ -6,6 +6,7 @@ import retrofit.client.Request;
 import retrofit.client.Response;
 import retrofit.http.Body;
 import retrofit.http.GET;
+import retrofit.http.Headers;
 import retrofit.http.POST;
 import retrofit.mime.TypedByteArray;
 
@@ -13,13 +14,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 
 
 public class MockClientTest {
 
     static interface TestCase {
-        @GET("/") String get();
+        @GET("/") @Headers("X-Foo: bar") String get();
         @POST("/") String post(@Body String body);
     }
 
@@ -38,8 +40,8 @@ public class MockClientTest {
         MockClient.Provider client = MockClient.when()
                     .aRequest()
                     .withMethod("GET")
-//                    .withHeader("Content-Type", is("text/html"))
-                    .thenReturn(MockClient.ResponseFactory.always(getResponse))
+                    .withHeader("x-foo", is("bar"))
+                    .thenReturn(getResponse)
                 .and().when()
                     .POST()
                     .thenReturn(responseFactory)

@@ -115,6 +115,9 @@ public class MockClient implements Client {
         RouteBuilder withPath(String url) {
             return matching(IsRequestWithUrl.withPath(url));
         }
+        Provider thenReturn(Response response) {
+            return thenReturn(ResponseFactory.always(response));
+        }
         Provider thenReturn(ResponseFactory response) {
             Matcher<Request> requestMatcher = allOf(matchers);
             builder.routes.add(Route.of(requestMatcher, response));
