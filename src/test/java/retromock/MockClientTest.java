@@ -48,7 +48,7 @@ public class MockClientTest {
                 ;
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setClient(client)
-                .setEndpoint("http://localhost/")
+                .setEndpoint("http://example.org/") // ignored, but we need to set some value
                 .build();
         TestCase testCase = restAdapter.create(TestCase.class);
         assertEquals("Hello, World", testCase.get());
