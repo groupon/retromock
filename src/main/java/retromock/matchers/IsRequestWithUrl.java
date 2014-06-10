@@ -5,10 +5,12 @@ import org.hamcrest.Matcher;
 import retrofit.client.Request;
 
 import java.net.URI;
-import java.util.LinkedHashMap;
+import java.util.AbstractMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.collection.IsMapContaining.hasEntry;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 public class IsRequestWithUrl extends FeatureMatcher<Request, URI> {
@@ -18,14 +20,15 @@ public class IsRequestWithUrl extends FeatureMatcher<Request, URI> {
     }
 
     public static Matcher<Request> withQuery(String k, String v) {
-        return withQuery(hasEntry(k, v));
+        Map.Entry<String, String> entry = new AbstractMap.SimpleImmutableEntry<>(k, v);
+        return withQuery(hasItem(entry));
     }
 
     public static Matcher<Request> withPath(Matcher<String> pathMatcher) {
         return withUri(new UrlWithPath(pathMatcher));
     }
 
-    public static Matcher<Request> withQuery(Matcher<Map<? extends String, ? extends String>> pathMatcher) {
+    public static Matcher<Request> withQuery(Matcher<? super Iterable<Map.Entry<String,String>>> pathMatcher) {
         return withUri(new UrlWithQuery(pathMatcher));
     }
 
@@ -54,21 +57,23 @@ public class IsRequestWithUrl extends FeatureMatcher<Request, URI> {
         }
     }
 
-    public static class UrlWithQuery extends FeatureMatcher<URI, Map<String,String>> {
+    public static class UrlWithQuery extends FeatureMatcher<URI, Iterable<Map.Entry<String,String>>> {
 
-        public UrlWithQuery(Matcher<? super Map<String,String>> subMatcher) {
+        public UrlWithQuery(Matcher<? super Iterable<Map.Entry<String,String>>> subMatcher) {
             super(subMatcher, "a URI with query parameters", "query parameters");
         }
 
         @Override
-        protected Map<String,String> featureValueOf(URI actual) {
-            LinkedHashMap<String, String> result = new LinkedHashMap<>();
+        protected Iterable<Map.Entry<String,String>> featureValueOf(URI actual) {
+            List<Map.Entry<String,String>> result = new LinkedList<>();
             String queryString = actual.getQuery();
             String[] queries = queryString.split("&");
             for (String query : queries) {
                 if (query.isEmpty()) continue;
                 String[] kv = query.split("=", 2);
-                result.put(kv[0], kv.length == 2 ? kv[1] : null);
+                String key = kv[0];
+                String val = kv.length == 2 ? kv[1] : null;
+                result.add(new AbstractMap.SimpleImmutableEntry<>(key, val));
             }
             return result;
         }
