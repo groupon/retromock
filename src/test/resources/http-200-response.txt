@@ -1,0 +1,17 @@
+HTTP/1.1 200 OK
+Date: Tue, 17 Jun 2014 12:34:56 GMT
+Server: RetroMock/1.2.3.4
+Last-Modified: Mon, 16 Jun 2014 12:34:56 GMT
+Content-Type: application/json; charset=UTF-8
+Content-Length: ${LENGTH}
+Connection: close
+
+{
+    "title" : "test",
+    "properties" : [
+        "keyA" : "valueA",
+        "keyB" : "valueB",
+        "keyC" : "valueC"
+    ],
+    "foot" : "qwerty"
+}
