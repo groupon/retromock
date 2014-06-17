@@ -12,6 +12,7 @@ import java.util.Map;
 
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static retromock.matchers.IsRegex.matchesRegex;
 
 public class IsRequestWithUrl extends FeatureMatcher<Request, URI> {
 
@@ -26,6 +27,17 @@ public class IsRequestWithUrl extends FeatureMatcher<Request, URI> {
 
     public static Matcher<Request> withPath(Matcher<String> pathMatcher) {
         return withUri(new UrlWithPath(pathMatcher));
+    }
+
+    public static Matcher<Request> withPathMatching(String regex) {
+        return withPath(matchesRegex(regex));
+    }
+
+    public static Matcher<Request> pathWithUrlParameters(String path, Map<String, ?> urlParams) {
+        for (Map.Entry entry : urlParams.entrySet()) {
+            path = path.replace("{" + entry.getKey() + "}", String.valueOf(entry.getValue()));
+        }
+        return withPath(equalTo(path));
     }
 
     public static Matcher<Request> withQuery(Matcher<? super Iterable<Map.Entry<String,String>>> pathMatcher) {
