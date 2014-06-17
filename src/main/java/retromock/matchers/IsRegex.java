@@ -19,7 +19,15 @@ public class IsRegex extends TypeSafeDiagnosingMatcher<String> {
 
     @Override
     protected boolean matchesSafely(String item, Description mismatchDescription) {
-        return pattern.matcher(item).matches();
+        final boolean matches = pattern.matcher(item).matches();
+        if (!matches) {
+            mismatchDescription
+                    .appendText("Item ")
+                    .appendValue(item)
+                    .appendText(" did not match pattern ")
+                    .appendValue(pattern);
+        }
+        return matches;
     }
 
     @Override
