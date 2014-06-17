@@ -4,6 +4,7 @@ Server: RetroMock/1.2.3.4
 Last-Modified: Mon, 16 Jun 2014 12:34:56 GMT
 Content-Type: application/json; charset=UTF-8
 Content-Length: ${LENGTH}
+X-Powered-By: Flat-File
 Connection: close
 
 {
