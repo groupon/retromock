@@ -8,10 +8,10 @@ import retrofit.mime.TypedInput;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.*;
 
 /**
  * Parses a flat file into a {@linkplain retrofit.client.Response} object.
@@ -22,20 +22,24 @@ public class HttpParser {
 
     private static final Pattern STATUS_LINE_PATTERN = Pattern.compile("HTTP/1\\.1 (?<statusCode>\\d{3}) (?<statusReason>.+)");
     private static final Pattern HEADER_PATTERN = Pattern.compile("(?<name>[a-zA-Z-]+): (?<value>.+)");
-    private static final String DEFAULT_CONTENT_TYPE = "text/plain; charset=UTF-8";
     private static final Pattern CHARSET_PATTERN = Pattern.compile("charset=(?<charset>.+\\b)");
+    private static final String DEFAULT_CONTENT_TYPE = "text/plain; charset=UTF-8";
 
     /**
      * Parses a {@linkplain java.io.BufferedReader} into a {@linkplain retrofit.client.Response} object.
      * @param url URL this mock response is answering for
      * @param input {@link java.io.BufferedReader} to read from
      * @return {@link retrofit.client.Response} object filled with data from the {@linkplain java.io.BufferedReader}
-     * @throws IOException
+     * @throws IOException If an I/O error occurs in {@linkplain java.io.BufferedReader}
      */
     public static Response parse(String url, BufferedReader input) throws IOException {
         Status status = status(input);
         List<Header> headers = headers(input);
         TypedInput body = body(contentType(headers), input);
+        headers = new PlaceholderReplacer(headers)
+                .withDate(new Date())
+                .withLength(body)
+                .build();
 
         return new Response(
                 url,
@@ -47,13 +51,13 @@ public class HttpParser {
     }
 
     /**
-     * Parses a {@linkplain java.io.FileReader} into a {@linkplain retrofit.client.Response} object.
+     * Parses a {@linkplain java.io.Reader} into a {@linkplain retrofit.client.Response} object.
      * @param url URL this mock response is answering for
-     * @param input {@link java.io.FileReader} to read from
-     * @return {@link retrofit.client.Response} object filled with data from the {@linkplain java.io.FileReader}
-     * @throws IOException
+     * @param input {@link java.io.Reader} to read from
+     * @return {@link retrofit.client.Response} object filled with data from the {@linkplain java.io.Reader}
+     * @throws IOException If an I/O error occurs in {@linkplain java.io.BufferedReader}
      */
-    public static Response parse(String url, FileReader input) throws IOException {
+    public static Response parse(String url, Reader input) throws IOException {
         try (BufferedReader reader = new BufferedReader(input)) {
             return parse(url, reader);
         }
@@ -64,10 +68,10 @@ public class HttpParser {
      * @param url URL this mock response is answering for
      * @param file {@link java.io.File} to read from
      * @return {@link retrofit.client.Response} object filled with data from the {@linkplain java.io.File}
-     * @throws IOException
+     * @throws IOException If an I/O error occurs in {@linkplain java.io.BufferedReader}
      */
     public static Response parse(String url, File file) throws IOException {
-        try (FileReader reader = new FileReader(file)) {
+        try (Reader reader = new FileReader(file)) {
             return parse(url, reader);
         }
     }
@@ -77,7 +81,7 @@ public class HttpParser {
      * @param url URL this mock response is answering for
      * @param path {@link java.nio.file.Path} to read from
      * @return {@link retrofit.client.Response} object filled with data from the {@linkplain java.nio.file.Path}
-     * @throws IOException
+     * @throws IOException If an I/O error occurs in {@linkplain java.io.BufferedReader}
      */
     public static Response parse(String url, Path path) throws IOException {
         return parse(url, path.toFile());
@@ -111,7 +115,7 @@ public class HttpParser {
     private static List<Header> headers(BufferedReader input) throws IOException {
         List<Header> headers = new ArrayList<>();
         String line;
-        while (isNotEmptyOrNull((line = input.readLine()))) {
+        while (isNotEmptyOrNull(line = input.readLine())) {
             Matcher m = HEADER_PATTERN.matcher(line);
             if (m.find()) {
                 headers.add(new Header(m.group("name"), m.group("value")));
@@ -152,4 +156,56 @@ public class HttpParser {
             return Charset.defaultCharset();
         }
     }
+
+    private static class PlaceholderReplacer {
+
+        static final TimeZone GMT = TimeZone.getTimeZone("GMT");
+        final DateFormat dateFormat;
+        final List<Header> headers;
+        String length;
+        String date;
+
+        PlaceholderReplacer(List<Header> headers) {
+            this.headers = headers;
+            this.dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+            this.dateFormat.setTimeZone(GMT);
+        }
+
+        public PlaceholderReplacer withLength(long length) {
+            this.length = String.valueOf(length);
+            return this;
+        }
+
+        public PlaceholderReplacer withLength(TypedByteArray byteArray) {
+            return withLength(byteArray.length());
+        }
+
+        public PlaceholderReplacer withLength(TypedInput input) {
+            return withLength((TypedByteArray)input);
+        }
+
+        public PlaceholderReplacer withDate(Date date) {
+            this.date = dateFormat.format(date);
+            return this;
+        }
+
+        public List<Header> build() {
+            List<Header> result = new ArrayList<>(headers.size());
+            for (Header header : headers) {
+                switch (header.getValue()) {
+                    case "${LENGTH}" :
+                        result.add(new Header(header.getName(), length));
+                        break;
+                    case "${DATE}" :
+                        result.add(new Header(header.getName(), date));
+                        break;
+                    default:
+                        result.add(header);
+                }
+            }
+            return result;
+        }
+
+    }
+
 }
