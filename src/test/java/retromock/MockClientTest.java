@@ -10,13 +10,17 @@ import retrofit.http.GET;
 import retrofit.http.Headers;
 import retrofit.http.POST;
 import retrofit.mime.TypedByteArray;
+import retromock.test.FileLocator;
+import retromock.test.Http200ResponseBean;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 
 public class MockClientTest {
@@ -26,8 +30,12 @@ public class MockClientTest {
         @POST("/") String post(@Body String body);
     }
 
+    static interface JsonTestCase {
+        @GET("/") Http200ResponseBean get();
+    }
 
-    @Test
+
+        @Test
     public void testARequest() throws Exception {
         Response getResponse = new Response("", 200, "", Collections.<Header>emptyList(), new TypedByteArray("text/plain", "\"Hello, World\"".getBytes()));
         final MockClient.ResponseFactory responseFactory = new MockClient.ResponseFactory() {
@@ -56,5 +64,21 @@ public class MockClientTest {
         assertEquals("post body", testCase.post("post body"));
     }
 
+    @Test
+    public void testResponseFromFile() throws Exception {
+        Path http200file = FileLocator.findFirstInClasspath("http-200-response.txt");
+        MockClient.Provider client = MockClient.when()
+                .GET()
+                .thenReturn(http200file);
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setClient(client)
+                .setEndpoint("http://example.org/") // ignored, but we need to set some value
+                .build();
+        JsonTestCase testCase = restAdapter.create(JsonTestCase.class);
+        Http200ResponseBean bean = testCase.get();
+        assertEquals("test", bean.getTitle());
+        assertFalse(bean.getProperties().isEmpty());
+        assertEquals("qwerty", bean.getFoot());
+    }
 
 }

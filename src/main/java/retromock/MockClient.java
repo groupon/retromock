@@ -9,8 +9,11 @@ import retrofit.client.Response;
 import retrofit.mime.TypedString;
 import retromock.matchers.IsRequestWithMethod;
 import retromock.matchers.IsRequestWithUrl;
+import retromock.parser.HttpParser;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -98,6 +101,14 @@ public class MockClient implements Client {
                 return thenReturn(ResponseFactory.always(response));
             }
 
+            public Provider thenReturn(File file) {
+                return thenReturn(ResponseFactory.fromFile(file));
+            }
+
+            public Provider thenReturn(Path path) {
+                return thenReturn(ResponseFactory.fromFile(path));
+            }
+
             public Provider thenReturn(ResponseFactory response) {
                 Matcher<Request> requestMatcher = allOf(matchers);
                 routes.add(Route.of(requestMatcher, response));
@@ -126,6 +137,19 @@ public class MockClient implements Client {
                     return response;
                 }
             };
+        }
+
+        public static ResponseFactory fromFile(final File file) {
+            return new ResponseFactory() {
+                @Override
+                public Response createFrom(Request request) throws IOException {
+                    return HttpParser.parse(request.getUrl(), file);
+                }
+            };
+        }
+
+        public static ResponseFactory fromFile(final Path path) {
+            return fromFile(path.toFile());
         }
 
         public abstract Response createFrom(Request request) throws IOException;
