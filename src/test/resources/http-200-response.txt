@@ -9,10 +9,10 @@ Connection: close
 
 {
     "title" : "test",
-    "properties" : [
+    "properties" : {
         "keyA" : "valueA",
         "keyB" : "valueB",
         "keyC" : "valueC"
-    ],
+    },
     "foot" : "qwerty"
 }
