@@ -33,7 +33,7 @@ public class Http200ResponseBean {
         return properties;
     }
 
-   public String getFoot() {
+    public String getFoot() {
         return foot;
     }
 

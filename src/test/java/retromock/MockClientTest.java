@@ -35,7 +35,7 @@ public class MockClientTest {
     }
 
 
-        @Test
+    @Test
     public void testARequest() throws Exception {
         Response getResponse = new Response("", 200, "", Collections.<Header>emptyList(), new TypedByteArray("text/plain", "\"Hello, World\"".getBytes()));
         final MockClient.ResponseFactory responseFactory = new MockClient.ResponseFactory() {
