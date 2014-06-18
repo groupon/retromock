@@ -7,6 +7,7 @@ import retrofit.mime.TypedByteArray;
 import retromock.test.FileLocator;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,7 @@ import static org.junit.Assert.*;
 
 public class HttpParserTest {
 
-    static final Path HTTP_200_FILE = FileLocator.findFirstInClasspath("http-200-response.txt");
+    static final List<Path> HTTP_FILES = FileLocator.findAllInClasspath("http-*-response.txt");
     static final String LOCALHOST = "http://localhost";
     static final String NAME_VALUE = "\"\\w+?\"\\s*:\\s*\".+?\",?\\s*";
     static final String LIST = "\\[\\s*(" + NAME_VALUE +  ")+\\],?\\s*";
@@ -24,8 +25,8 @@ public class HttpParserTest {
     static final Pattern JSON_PATTERN = Pattern.compile("\\{\\s*(" + NAME_VALUE + "|" + MULTI_LIST + ")+\\s*\\}");
 
     @Test
-    public void testParseResponseFromFile() throws Exception {
-        Response response = HttpParser.parse(LOCALHOST, HTTP_200_FILE);
+    public void testParse200ResponseFromFile() throws Exception {
+        Response response = HttpParser.parse(LOCALHOST, getFile("http-200-response.txt"));
         assertNotNull(response);
         assertEquals(LOCALHOST, response.getUrl());
         assertEquals(200, response.getStatus());
@@ -35,8 +36,21 @@ public class HttpParserTest {
         assertTrue(response.getBody() instanceof TypedByteArray);
         TypedByteArray body = (TypedByteArray) response.getBody();
         assertEquals(headers.get("Content-Type"), body.mimeType());
+        assertEquals(headers.get("Content-Length"), String.valueOf(body.length()));
         String bodyAsStr = new String(body.getBytes());
         assertTrue(JSON_PATTERN.matcher(bodyAsStr.replaceAll("\n", "")).matches());
+    }
+
+    @Test
+    public void testParse404ResponseFromFile() throws Exception {
+        Response response = HttpParser.parse(LOCALHOST, getFile("http-404-response.txt"));
+        assertNotNull(response);
+        assertEquals(LOCALHOST, response.getUrl());
+        assertEquals(404, response.getStatus());
+        assertEquals("Not Found", response.getReason());
+        Map<String, String> headers = headerMap(response.getHeaders());
+        assertEquals("Flat-File", headers.get("X-Powered-By"));
+        assertEquals(headers.get("Content-Length"), "0");
     }
 
     private Map<String, String> headerMap(List<Header> headers) {
@@ -47,4 +61,13 @@ public class HttpParserTest {
         return headerMap;
     }
 
+    private static Path getFile(String name) {
+        Path fileName = Paths.get(name);
+        for (Path path : HTTP_FILES) {
+            if (path.endsWith(fileName)) {
+                return path;
+            }
+        }
+        return null;
+    }
 }
