@@ -48,6 +48,9 @@ public class FileLocator {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            if (terminateOnFirstFind && !result.isEmpty()) {
+                break;
+            }
         }
         return result;
 
