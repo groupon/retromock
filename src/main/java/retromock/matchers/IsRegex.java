@@ -23,9 +23,9 @@ public class IsRegex extends TypeSafeDiagnosingMatcher<String> {
         if (!matches) {
             mismatchDescription
                     .appendText("Item ")
-                    .appendValue(item)
+                    .appendText(item)
                     .appendText(" did not match pattern ")
-                    .appendValue(pattern);
+                    .appendText(pattern.pattern());
         }
         return matches;
     }
@@ -33,8 +33,7 @@ public class IsRegex extends TypeSafeDiagnosingMatcher<String> {
     @Override
     public void describeTo(Description description) {
         description
-                .appendText("a string matching the pattern '")
-                .appendValue(pattern)
-                .appendText("'");
+                .appendText("a string matching the pattern ")
+                .appendText(pattern.pattern());
     }
 }
