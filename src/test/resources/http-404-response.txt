@@ -5,3 +5,11 @@ Content-Length: ${LENGTH}
 X-Powered-By: Flat-File
 Connection: close
 
+<html>
+    <head>
+        <title>404 NOT FOUND</title>
+    </head>
+    <body>
+        <b>404 - Page not found</b>
+    </body>
+</html>

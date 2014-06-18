@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
+import static retromock.matchers.IsRegex.matchesRegex;
 
 public class HttpParserTest {
 
@@ -41,6 +42,19 @@ public class HttpParserTest {
     }
 
     @Test
+    public void testParse302ResponseFromFile() throws Exception {
+        Response response = HttpParser.parse(LOCALHOST, getFile("http-302-response.txt"));
+        assertNotNull(response);
+        assertEquals(LOCALHOST, response.getUrl());
+        assertEquals(302, response.getStatus());
+        assertEquals("Found", response.getReason());
+        Map<String, String> headers = headerMap(response.getHeaders());
+        assertEquals("http://otherhost/", headers.get("Location"));
+        assertEquals("Flat-File", headers.get("X-Powered-By"));
+        assertEquals(headers.get("Content-Length"), "0");
+    }
+
+    @Test
     public void testParse404ResponseFromFile() throws Exception {
         Response response = HttpParser.parse(LOCALHOST, getFile("http-404-response.txt"));
         assertNotNull(response);
@@ -49,7 +63,11 @@ public class HttpParserTest {
         assertEquals("Not Found", response.getReason());
         Map<String, String> headers = headerMap(response.getHeaders());
         assertEquals("Flat-File", headers.get("X-Powered-By"));
-        assertEquals(headers.get("Content-Length"), "0");
+        assertTrue(response.getBody() instanceof TypedByteArray);
+        TypedByteArray body = (TypedByteArray) response.getBody();
+        assertEquals(headers.get("Content-Length"), String.valueOf(body.length()));
+        String html = new String(body.getBytes());
+        assertThat(html.replaceAll("\n", ""), matchesRegex(".+(<\\w+>404 .+</\\w+>.*)+"));
     }
 
     private Map<String, String> headerMap(List<Header> headers) {
