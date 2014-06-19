@@ -14,6 +14,7 @@ public class IsRequestWithHeaders extends FeatureMatcher<Request, List<Header>> 
         super(subMatcher, "a request with headers", "headers");
     }
 
+    @SafeVarargs
     public static Matcher<Request> withHeaders(Matcher<Header>... headerMatchers) {
         return new IsRequestWithHeaders(hasItems(headerMatchers));
     }

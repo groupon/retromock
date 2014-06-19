@@ -52,7 +52,7 @@ public class MockClient implements Client {
     
     public static class Provider implements Client.Provider {
 
-        List<Route> routes = new LinkedList<>();
+        final List<Route> routes = new LinkedList<>();
 
         public RouteBuilder aRequest() { return new RouteBuilder(this); }
 
@@ -79,7 +79,7 @@ public class MockClient implements Client {
         }
 
         public class RouteBuilder {
-            List<Matcher<? super Request>> matchers = new LinkedList<>();
+            final List<Matcher<? super Request>> matchers = new LinkedList<>();
 
             public RouteBuilder(Provider builder) {
             }
