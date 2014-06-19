@@ -38,7 +38,7 @@ public class HttpParserTest {
         assertEquals(headers.get("Content-Length"), String.valueOf(body.length()));
         Http200ResponseBean bodyAsBean = GSON.fromJson(new String(body.getBytes()), Http200ResponseBean.class);
         assertEquals("test", bodyAsBean.title);
-        assertEquals("qwerty", bodyAsBean.title);
+        assertEquals("qwerty", bodyAsBean.foot);
     }
 
     @Test
