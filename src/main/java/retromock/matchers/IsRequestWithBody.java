@@ -14,7 +14,7 @@ import static org.hamcrest.CoreMatchers.allOf;
 
 public class IsRequestWithBody extends FeatureMatcher<Request, TypedOutput> {
 
-    public static<T> Matcher<Request> body(final Matcher<JsonPath>... pathMatchers) {
+    public static Matcher<Request> body(final Matcher<JsonPath>... pathMatchers) {
         return new IsRequestWithBody(jsonBody(allOf(pathMatchers)));
     }
 
