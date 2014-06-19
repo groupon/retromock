@@ -25,9 +25,13 @@ import static org.junit.Assert.assertFalse;
 import static retromock.matchers.IsRequestWithBody.body;
 import static retromock.matchers.IsRequestWithBody.jsonPath;
 
-import static retrofit.RestAdapter.LogLevel.FULL;
-
 public class MockClientTest {
+
+    private final Response helloWorld = new Response(
+            "/response", 200, "OK",
+            Collections.<Header>emptyList(),
+            new TypedByteArray("text/plain", "\"Hello, World\"".getBytes())
+    );
 
     static interface TestCase {
         @GET("/") @Headers("X-Foo: bar") String get();
@@ -42,7 +46,7 @@ public class MockClientTest {
 
     @Test
     public void testARequest() throws Exception {
-        Response helloWorld = new Response("", 200, "", Collections.<Header>emptyList(), new TypedByteArray("text/plain", "\"Hello, World\"".getBytes()));
+
         final MockClient.ResponseFactory responseFactory = new MockClient.ResponseFactory() {
             @Override
             public Response createFrom(Request request) throws IOException {
@@ -51,36 +55,42 @@ public class MockClientTest {
                 return new Response("", 200, "", Collections.<Header>emptyList(), new TypedByteArray("text/plain", os.toByteArray()));
             }
         };
+
         MockClient.Provider client = MockClient.when()
                     .aRequest()
                     .withMethod("GET")
                     .withHeader("x-foo", is("bar"))
                     .thenReturn(helloWorld)
-                .and()
-                    .POST("/post")
-                    .matching(body(
-                            jsonPath("title", is("test")),
-                            jsonPath("properties.foo", is("bar"))
-                    ))
-                    .thenReturn(helloWorld)
                 .and().when()
                     .POST()
                     .thenReturn(responseFactory)
                 ;
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setClient(client)
-                .setEndpoint("http://example.org/") // ignored, but we need to set some value
-                .setLogLevel(FULL)
-                .build();
-        TestCase testCase = restAdapter.create(TestCase.class);
+
+        TestCase testCase = restAdapter(client).create(TestCase.class);
+
         assertEquals("Hello, World", testCase.get());
         assertEquals("post body", testCase.post("post body"));
-        final JsonTestCase jsonTestCase = restAdapter.create(JsonTestCase.class);
+
+    }
+
+    @Test
+    public void testJsonPost() {
+        MockClient.Provider client = MockClient.when()
+            .POST("/post")
+            .matching(body(
+                    jsonPath("title", is("test")),
+                    jsonPath("properties.foo", is("bar"))
+            ))
+            .thenReturn(helloWorld);
+
+        final JsonTestCase jsonTestCase = restAdapter(client).create(JsonTestCase.class);
+
         final Http200ResponseBean body = new Http200ResponseBean();
         body.title = "test";
         body.properties = new HashMap<String, String>() {{
             put("foo", "bar");
         }};
+
         assertEquals("Hello, World", jsonTestCase.post(body, "application/json"));
     }
 
@@ -90,16 +100,22 @@ public class MockClientTest {
         MockClient.Provider client = MockClient.when()
                 .GET()
                 .thenReturn(http200file);
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setClient(client)
-                .setEndpoint("http://example.org/") // ignored, but we need to set some value
-                .setLogLevel(FULL)
-                .build();
-        JsonTestCase testCase = restAdapter.create(JsonTestCase.class);
+
+        JsonTestCase testCase = restAdapter(client).create(JsonTestCase.class);
+
         Http200ResponseBean bean = testCase.get();
+
         assertEquals("test", bean.title);
         assertFalse(bean.properties.isEmpty());
         assertEquals("qwerty", bean.foot);
+    }
+
+    private RestAdapter restAdapter(MockClient.Provider client) {
+        return new RestAdapter.Builder()
+                .setClient(client)
+                .setEndpoint("http://example.org/") // ignored, but we need to set some value
+                .setLogLevel(RestAdapter.LogLevel.FULL)
+                .build();
     }
 
 }
