@@ -14,6 +14,12 @@ public class IsHeaderTest {
     static final Matcher<Header> isHeader = IsHeader.header("name", not(isEmptyOrNullString()));
 
     @Test
+    public void testBasicAuth() throws Exception {
+        Header header = new Header("Authorization", "Basic dXNlcjpwYXNzd29yZA==");
+        assertThat(header, IsHeader.basicAuth("user", "password"));
+    }
+
+    @Test
     public void testIsHeaderTrue() throws Exception {
         Header header = new Header("name", "value");
         assertTrue(isHeader.matches(header));
