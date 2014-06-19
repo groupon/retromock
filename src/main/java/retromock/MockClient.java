@@ -57,12 +57,16 @@ public class MockClient implements Client {
         public RouteBuilder aRequest() { return new RouteBuilder(this); }
 
         public RouteBuilder GET() { return aRequest().withMethod("GET"); }
+        public RouteBuilder GET(String path) { return aRequest().withMethod("GET").withPath(path); }
 
         public RouteBuilder POST() { return aRequest().withMethod("POST"); }
+        public RouteBuilder POST(final String path) { return aRequest().withMethod("POST").withPath(path); }
 
         public RouteBuilder PUT() { return aRequest().withMethod("PUT"); }
+        public RouteBuilder PUT(String path) { return aRequest().withMethod("PUT").withPath(path); }
 
         public RouteBuilder DELETE() { return aRequest().withMethod("DELETE"); }
+        public RouteBuilder DELETE(String path) { return aRequest().withMethod("DELETE").withPath(path); }
 
         /* syntax sugar */
 

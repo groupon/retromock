@@ -21,20 +21,8 @@ import java.util.Map;
  */
 public class Http200ResponseBean {
 
-    String title;
-    Map<String, String> properties;
-    String foot;
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Map<String, String> getProperties() {
-        return properties;
-    }
-
-    public String getFoot() {
-        return foot;
-    }
+    public String title;
+    public Map<String, String> properties;
+    public String foot;
 
 }
