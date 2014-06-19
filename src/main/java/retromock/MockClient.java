@@ -153,12 +153,15 @@ public class MockClient implements Client {
         }
 
         public static ResponseFactory fromFile(final Path path) {
-            return fromFile(path.toFile());
+            return new ResponseFactory() {
+                @Override
+                public Response createFrom(Request request) throws IOException {
+                    return HttpParser.parse(request.getUrl(), path);
+                }
+            };
         }
 
         public abstract Response createFrom(Request request) throws IOException;
     }
-    
-
 
 }
