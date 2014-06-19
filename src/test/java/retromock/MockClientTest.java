@@ -25,6 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static retromock.matchers.IsRequestWithBody.body;
 import static retromock.matchers.IsRequestWithBody.jsonPath;
 
+import static retrofit.RestAdapter.LogLevel.FULL;
 
 public class MockClientTest {
 
@@ -69,7 +70,7 @@ public class MockClientTest {
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setClient(client)
                 .setEndpoint("http://example.org/") // ignored, but we need to set some value
-                .setLogLevel(RestAdapter.LogLevel.FULL)
+                .setLogLevel(FULL)
                 .build();
         TestCase testCase = restAdapter.create(TestCase.class);
         assertEquals("Hello, World", testCase.get());
@@ -92,6 +93,7 @@ public class MockClientTest {
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setClient(client)
                 .setEndpoint("http://example.org/") // ignored, but we need to set some value
+                .setLogLevel(FULL)
                 .build();
         JsonTestCase testCase = restAdapter.create(JsonTestCase.class);
         Http200ResponseBean bean = testCase.get();
