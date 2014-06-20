@@ -54,19 +54,19 @@ public class MockClient implements Client {
 
         final List<Route> routes = new LinkedList<>();
 
-        public RouteBuilder aRequest() { return new RouteBuilder(this); }
+        public RouteBuilder aRequest() { return new RouteBuilder(); }
 
         public RouteBuilder GET() { return aRequest().withMethod("GET"); }
-        public RouteBuilder GET(String path) { return aRequest().withMethod("GET").withPath(path); }
+        public RouteBuilder GET(final String path) { return GET().withPath(path); }
 
         public RouteBuilder POST() { return aRequest().withMethod("POST"); }
-        public RouteBuilder POST(final String path) { return aRequest().withMethod("POST").withPath(path); }
+        public RouteBuilder POST(final String path) { return POST().withPath(path); }
 
         public RouteBuilder PUT() { return aRequest().withMethod("PUT"); }
-        public RouteBuilder PUT(String path) { return aRequest().withMethod("PUT").withPath(path); }
+        public RouteBuilder PUT(final String path) { return PUT().withPath(path); }
 
         public RouteBuilder DELETE() { return aRequest().withMethod("DELETE"); }
-        public RouteBuilder DELETE(String path) { return aRequest().withMethod("DELETE").withPath(path); }
+        public RouteBuilder DELETE(final String path) { return DELETE().withPath(path); }
 
         /* syntax sugar */
 
@@ -80,9 +80,6 @@ public class MockClient implements Client {
 
         public class RouteBuilder {
             final List<Matcher<? super Request>> matchers = new LinkedList<>();
-
-            public RouteBuilder(Provider builder) {
-            }
 
             public RouteBuilder matching(Matcher<? super Request> requestMatcher) {
                 matchers.add(requestMatcher);
