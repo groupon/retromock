@@ -27,10 +27,11 @@ public class HttpParser {
 
     /**
      * Parses a {@linkplain java.io.BufferedReader} into a {@linkplain retrofit.client.Response} object.
+     *
      * @param url URL this mock response is answering for
      * @param input {@link java.io.BufferedReader} to read from
      * @return {@link retrofit.client.Response} object filled with data from the {@linkplain java.io.BufferedReader}
-     * @throws IOException If an I/O error occurs in {@linkplain java.io.BufferedReader}
+     * @throws IOException If an I/O error occurs while parsing
      */
     public static Response parse(String url, BufferedReader input) throws IOException {
         Status status = status(input);
@@ -52,10 +53,11 @@ public class HttpParser {
 
     /**
      * Parses a {@linkplain java.io.Reader} into a {@linkplain retrofit.client.Response} object.
+     *
      * @param url URL this mock response is answering for
      * @param input {@link java.io.Reader} to read from
      * @return {@link retrofit.client.Response} object filled with data from the {@linkplain java.io.Reader}
-     * @throws IOException If an I/O error occurs in {@linkplain java.io.BufferedReader}
+     * @throws IOException If an I/O error occurs while parsing
      */
     public static Response parse(String url, Reader input) throws IOException {
         try (BufferedReader reader = new BufferedReader(input)) {
@@ -65,10 +67,11 @@ public class HttpParser {
 
     /**
      * Parses an {@linkplain java.io.InputStream} into a {@linkplain retrofit.client.Response} object.
+     *
      * @param url URL this mock response is answering for
      * @param is {@link java.io.InputStream} to read from
      * @return {@link retrofit.client.Response} object filled with data from the {@linkplain java.io.InputStream}
-     * @throws IOException If an I/O error occurs in {@linkplain java.io.BufferedReader}
+     * @throws IOException If an I/O error occurs while parsing
      */
     public static Response parse(String url, InputStream is) throws IOException {
         try (Reader reader = new InputStreamReader(is)) {
@@ -78,10 +81,11 @@ public class HttpParser {
 
     /**
      * Parses a {@linkplain java.io.File} into a {@linkplain retrofit.client.Response} object.
+     *
      * @param url URL this mock response is answering for
      * @param file {@link java.io.File} to read from
      * @return {@link retrofit.client.Response} object filled with data from the {@linkplain java.io.File}
-     * @throws IOException If an I/O error occurs in {@linkplain java.io.BufferedReader}
+     * @throws IOException If an I/O error occurs while parsing
      */
     public static Response parse(String url, File file) throws IOException {
         try (Reader reader = new FileReader(file)) {
@@ -91,10 +95,11 @@ public class HttpParser {
 
     /**
      * Parses a {@linkplain java.nio.file.Path} into a {@linkplain retrofit.client.Response} object.
+     *
      * @param url URL this mock response is answering for
      * @param path {@link java.nio.file.Path} to read from
      * @return {@link retrofit.client.Response} object filled with data from the {@linkplain java.nio.file.Path}
-     * @throws IOException If an I/O error occurs in {@linkplain java.io.BufferedReader}
+     * @throws IOException If an I/O error occurs while parsing
      */
     public static Response parse(String url, Path path) throws IOException {
         return parse(url, path.toFile());

@@ -42,6 +42,7 @@ public class FileLocator {
     }
 
     /**
+     * Walks through all the {@linkplain java.nio.file.Path}s and returns a {@linkplain List} of all files that match the pattern.
      *
      * @param fileNamePattern pattern for file name
      * @param terminateOnFirstFind If the search should terminate on the first finding
