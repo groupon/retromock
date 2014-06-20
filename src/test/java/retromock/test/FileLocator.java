@@ -22,9 +22,10 @@ public class FileLocator {
      *
      * @param fileNameGlob Glob pattern for file name, e.g. *.txt
      * @return {@link java.util.List} of {@link java.nio.file.Path} objects for all matching files
+     * @throws IOException If walking the file tree goes wrong
      */
-    public static List<Path> findAllInClasspath(final String fileNameGlob) {
-       return findInClasspath(fileNameGlob, false);
+    public static List<Path> findAllInClasspath(final String fileNameGlob) throws IOException {
+       return findInPaths(glob(fileNameGlob), false, classpaths());
     }
 
     /**
@@ -32,22 +33,26 @@ public class FileLocator {
      * of the first file that matches the pattern.
      *
      * @param fileNameGlob Glob pattern for file name, e.g. *.txt
-     * @return {{@link java.nio.file.Path} object for the first matching files
+     * @return {@link java.nio.file.Path} object for the first matching files
+     * @throws IOException If walking the file tree goes wrong
      */
-    public static Path findFirstInClasspath(final String fileNameGlob) {
-        List<Path> result = findInClasspath(fileNameGlob, true);
+    public static Path findFirstInClasspath(final String fileNameGlob) throws IOException {
+        List<Path> result = findInPaths(glob(fileNameGlob), true, classpaths());
         return result.isEmpty() ? null : result.get(0);
     }
 
-    private static List<Path> findInClasspath(final String fileNameGlob, final boolean terminateOnFirstFind) {
+    /**
+     *
+     * @param fileNamePattern pattern for file name
+     * @param terminateOnFirstFind If the search should terminate on the first finding
+     * @param paths {@linkplain java.nio.file.Path}s to walk through
+     * @return {@link java.util.List} of {@link java.nio.file.Path} objects for all matching files
+     * @throws IOException If walking the file tree goes wrong
+     */
+    public static List<Path> findInPaths(final String fileNamePattern, final boolean terminateOnFirstFind, final Path... paths) throws IOException {
         List<Path> result = new ArrayList<>();
-        Path[] classpaths = classpaths();
-        for (Path path : classpaths) {
-            try {
-                Files.walkFileTree(path, fileVisitor(glob(fileNameGlob), result, terminateOnFirstFind));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        for (Path path : paths) {
+            Files.walkFileTree(path, fileVisitor(fileNamePattern, result, terminateOnFirstFind));
             if (terminateOnFirstFind && !result.isEmpty()) {
                 break;
             }
