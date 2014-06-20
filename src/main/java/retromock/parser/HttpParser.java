@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.regex.*;
 
 /**
- * Parses a flat file into a {@linkplain retrofit.client.Response} object.
+ * Parses a {@linkplain java.io.Reader}, e.g. from a flat file, into a {@linkplain retrofit.client.Response} object.
  *
  * @since 2014-06-17
  */
@@ -64,7 +64,7 @@ public class HttpParser {
     }
 
     /**
-     * Parses a {@linkplain java.io.InputStream} into a {@linkplain retrofit.client.Response} object.
+     * Parses an {@linkplain java.io.InputStream} into a {@linkplain retrofit.client.Response} object.
      * @param url URL this mock response is answering for
      * @param is {@link java.io.InputStream} to read from
      * @return {@link retrofit.client.Response} object filled with data from the {@linkplain java.io.InputStream}
