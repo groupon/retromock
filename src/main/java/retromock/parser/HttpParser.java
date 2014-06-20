@@ -16,6 +16,21 @@ import java.util.regex.*;
 /**
  * Parses a {@linkplain java.io.Reader}, e.g. from a flat file, into a {@linkplain retrofit.client.Response} object.
  *
+ * For example you could prepare a mocked {@linkplain retrofit.client.Response} in a plain text file like this:
+ * <pre>
+ * HTTP/1.1 200 OK
+ * Date: ${DATE}
+ * Server: RetroMock/1.2.3.4
+ * Content-Type: text/plain; charset=UTF-8
+ * Content-Length: ${LENGTH}
+ *
+ * Hello World!
+ * </pre>
+ *
+ * The placeholder {@code ${DATE}} will be replaced with the current date.
+ * The placeholder {@code ${LENGTH}} will be replaced with the actual length of the body.
+ * The {@code charset} parameter of {@code Content-Type} is considered while parsing the body.
+ *
  * @since 2014-06-17
  */
 public class HttpParser {
