@@ -71,4 +71,4 @@ Depending of how much "infrastructure" you want to test, there are other approac
 
 [wiremock]: http://wiremock.org/
 [retrofit]: http://square.github.io/retrofit/
-[hamcrest]: FIXME
+[hamcrest]: https://code.google.com/p/hamcrest/
