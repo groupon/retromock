@@ -1,6 +1,7 @@
 package retromock.parser;
 
 import com.google.gson.Gson;
+import org.junit.Before;
 import org.junit.Test;
 import retrofit.client.Header;
 import retrofit.client.Response;
@@ -8,6 +9,7 @@ import retrofit.mime.TypedByteArray;
 import retromock.test.FileLocator;
 import retromock.test.Http200ResponseBean;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -19,9 +21,14 @@ import static retromock.matchers.IsRegex.matchesRegex;
 
 public class HttpParserTest {
 
-    static final List<Path> HTTP_FILES = FileLocator.findAllInClasspath("http-*-response.txt");
+    private List<Path> HTTP_FILES;
     static final String LOCALHOST = "http://localhost";
     static final Gson GSON = new Gson();
+
+    @Before
+    public void setup() throws IOException {
+        HTTP_FILES = FileLocator.findAllInClasspath("http-*-response.txt");
+    }
 
     @Test
     public void testParse200ResponseFromFile() throws Exception {
@@ -78,7 +85,7 @@ public class HttpParserTest {
         return headerMap;
     }
 
-    private static Path getFile(String name) {
+    private Path getFile(String name) {
         Path fileName = Paths.get(name);
         for (Path path : HTTP_FILES) {
             if (path.endsWith(fileName)) {
