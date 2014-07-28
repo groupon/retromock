@@ -21,7 +21,7 @@ To use Retormock, you perform these steps:
 1.  use the DSL to setup routes
 
     ```java
-    MockClient.Provider client = MockClient.when()
+    MockClient.Provider mockClient = MockClient.when()
      .GET("/some/path")
      .withHeader("x-foo", is("headerVal"))
      .matching(body(
@@ -29,7 +29,6 @@ To use Retormock, you perform these steps:
        jsonPath("properties.foo", is(200))
      ))
      .thenReturn(helloWorld);
-
     ```
 
    many of the methods are overloaded or have alternative ways of specifying the same functionality.
@@ -40,7 +39,7 @@ To use Retormock, you perform these steps:
 
     ```java
     RestAdapter restAdapter = new RestAdapter.Builder()
-       .setClient(client)
+       .setClient(mockClient)
        .setEndpoint("http://example.org/") // ignored, but you must set some value
        // more config, e.g. for request interceptors
        .build();
@@ -49,10 +48,9 @@ To use Retormock, you perform these steps:
 1.  Use Retrofit as usual
 
     ```java
-    YourApiClient yac = restAdapter(client).create(YourApiClient.class);
+    YourApiClient yac = restAdapter.create(YourApiClient.class);
 
     assertEquals("Hello, World", yac.someMethod());
-
     ```
 
 ## Alternatives to Retromock
